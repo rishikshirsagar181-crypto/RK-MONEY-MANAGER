@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RK Money">
+<meta name="description" content="Premium offline money manager - track income, expenses, budgets, savings, loans and investments.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+<title>RK Money Manager - Premium</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --primary:#4f46e5;--primary-gradient:linear-gradient(135deg,#6366f1 0%,#4f46e5 100%);
+  --primary-hover:linear-gradient(135deg,#4f46e5 0%,#4338ca 100%);
+  --success:#10b981;--danger:#ef4444;--warning:#f59e0b;
+  --bg:#f8fafc;--card-bg:#ffffff;--text:#0f172a;--text-light:#64748b;
+  --border:#e2e8f0;--shadow-sm:0 2px 4px rgba(0,0,0,.04);
+  --shadow-md:0 10px 30px -10px rgba(0,0,0,.08);
+  --shadow-lg:0 20px 40px -15px rgba(0,0,0,.15);
+  --radius:16px;--radius-sm:12px;
+}
+[data-theme="dark"]{--bg:#0f172a;--card-bg:#1e293b;--text:#f8fafc;--text-light:#94a3b8;--border:#334155;--shadow-md:0 10px 30px -10px rgba(0,0,0,.4)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+
+/* AUTH */
+.auth-screen{min-height:100vh;display:none;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#e0e7ff 0%,#f3e8ff 100%)}
+[data-theme="dark"] .auth-screen{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%)}
+.auth-screen.active{display:flex}
+.auth-box{background:var(--card-bg);padding:40px 32px;border-radius:24px;box-shadow:var(--shadow-lg);max-width:420px;width:100%;text-align:center;border:1px solid rgba(255,255,255,.5);animation:slideUp .6s cubic-bezier(.16,1,.3,1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.auth-box h1{font-size:26px;font-weight:800;background:var(--primary-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px}
+.auth-box h1 i{-webkit-text-fill-color:var(--primary)}
+.tagline{color:var(--text-light);font-size:13px;margin-bottom:30px;font-weight:500;letter-spacing:.5px}
+.btn{width:100%;padding:16px;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:600;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden;letter-spacing:.3px;font-family:inherit}
+.btn-primary{background:var(--primary-gradient);color:#fff;box-shadow:0 4px 15px rgba(79,70,229,.3)}
+.btn-primary:hover{background:var(--primary-hover);transform:translateY(-2px);box-shadow:0 8px 25px rgba(79,70,229,.4)}
+.btn-primary:active{transform:translateY(0)}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline:hover{background:var(--bg);border-color:var(--primary);color:var(--primary)}
+.btn-danger{background:#fee2e2;color:var(--danger)}
+.btn-danger:hover{background:var(--danger);color:#fff}
+.btn-sm{padding:10px 20px;font-size:13px;width:auto;border-radius:100px}
+.auth-link{margin-top:24px;color:var(--text-light);font-size:14px}
+.auth-link a{color:var(--primary);text-decoration:none;font-weight:600;cursor:pointer;transition:opacity .2s}
+.auth-link a:hover{opacity:.8;text-decoration:underline}
+.pin-display{display:flex;justify-content:center;gap:16px;margin:30px 0}
+.pin-dot{width:16px;height:16px;border-radius:50%;background:var(--border);transition:all .3s cubic-bezier(.4,0,.2,1)}
+.pin-dot.filled{background:var(--primary);transform:scale(1.3);box-shadow:0 0 12px rgba(79,70,229,.5)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0 30px;max-width:300px;margin-left:auto;margin-right:auto}
+.numpad button{aspect-ratio:1.6;font-size:24px;font-weight:600;border:none;background:var(--bg);color:var(--text);border-radius:var(--radius);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);font-family:inherit}
+.numpad button:hover{background:#e0e7ff;color:var(--primary);transform:scale(1.05)}
+.numpad button:active{transform:scale(.95);background:#c7d2fe}
+.numpad button.action{font-size:18px;color:var(--text-light);background:transparent;box-shadow:none}
+.numpad button.action:hover{color:var(--danger);background:#fee2e2}
+
+/* MAIN */
+.app{display:none}
+.app.active{display:block}
+.header{background:var(--card-bg);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);backdrop-filter:blur(10px);background:rgba(255,255,255,.9)}
+[data-theme="dark"] .header{background:rgba(30,41,59,.9)}
+.header h1{font-size:20px;font-weight:800;color:var(--primary);display:flex;align-items:center;gap:8px}
+.header-actions{display:flex;gap:10px}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--card-bg);color:var(--text-light);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;font-size:16px}
+.icon-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);transform:translateY(-2px);box-shadow:0 4px 12px rgba(79,70,229,.3)}
+.nav{background:var(--card-bg);padding:12px 24px;display:flex;gap:8px;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-item{padding:10px 20px;border:none;background:transparent;color:var(--text-light);cursor:pointer;border-radius:100px;white-space:nowrap;font-size:14px;font-weight:600;transition:all .3s;display:flex;align-items:center;gap:8px;font-family:inherit}
+.nav-item:hover{background:var(--bg);color:var(--primary)}
+.nav-item.active{background:var(--primary-gradient);color:#fff;box-shadow:0 4px 15px rgba(79,70,229,.3)}
+.container{max-width:1200px;margin:0 auto;padding:24px;padding-bottom:100px}
+.section{display:none;animation:fadeIn .4s}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:30px}
+.card{background:var(--card-bg);padding:24px;border-radius:20px;box-shadow:var(--shadow-md);border:1px solid var(--border);transition:all .3s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:rgba(79,70,229,.2)}
+.card-label{color:var(--text-light);font-size:13px;margin-bottom:10px;display:flex;align-items:center;gap:8px;font-weight:500}
+.card-value{font-size:32px;font-weight:800;letter-spacing:-.5px}
+.card-value.income{color:var(--success)}
+.card-value.expense{color:var(--danger)}
+.card-value.savings{color:var(--primary)}
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px;margin-bottom:30px}
+.chart-card{background:var(--card-bg);padding:24px;border-radius:20px;box-shadow:var(--shadow-md);border:1px solid var(--border)}
+.chart-card h3{margin-bottom:20px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px}
+.chart-card canvas{max-height:280px}
+.filters{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.filter-select,.search-input{padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--card-bg);color:var(--text);font-size:14px;font-weight:500;outline:none;transition:all .2s;font-family:inherit}
+.filter-select:focus,.search-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.search-input{flex:1;min-width:200px}
+.table-container{background:var(--card-bg);border-radius:20px;box-shadow:var(--shadow-md);overflow-x:auto;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th,td{padding:16px;text-align:left;border-bottom:1px solid var(--border);font-size:14px}
+th{background:var(--bg);font-weight:700;color:var(--text-light);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(79,70,229,.02)}
+.badge{padding:6px 14px;border-radius:100px;font-size:11px;font-weight:700;text-transform:capitalize;letter-spacing:.5px}
+.badge-income{background:#d1fae5;color:#065f46}
+.badge-expense{background:#fee2e2;color:#991b1b}
+.badge-transfer{background:#e0e7ff;color:#3730a3}
+.settings-list{background:var(--card-bg);border-radius:20px;box-shadow:var(--shadow-md);overflow:hidden;border:1px solid var(--border)}
+.settings-item{padding:20px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);cursor:pointer;transition:all .2s}
+.settings-item:hover{background:var(--bg);padding-left:32px}
+.settings-item:last-child{border-bottom:none}
+.settings-item-label{font-weight:600;display:flex;align-items:center;gap:12px;font-size:15px}
+.settings-item-value{color:var(--text-light);font-size:13px;margin-top:4px}
+.fab{position:fixed;bottom:30px;right:30px;width:60px;height:60px;border-radius:20px;background:var(--primary-gradient);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 10px 30px rgba(79,70,229,.4);transition:all .3s cubic-bezier(.4,0,.2,1);z-index:90;display:none;align-items:center;justify-content:center}
+.fab.show{display:flex}
+.fab:hover{transform:scale(1.1) rotate(90deg);box-shadow:0 15px 40px rgba(79,70,229,.5)}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,.6);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
+.modal.active{display:flex;animation:fadeIn .3s}
+.modal-content{background:var(--card-bg);padding:32px;border-radius:24px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp .4s cubic-bezier(.16,1,.3,1)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.modal-header h2{font-size:22px;font-weight:800;display:flex;align-items:center;gap:10px}
+.close-btn{background:var(--bg);border:none;width:36px;height:36px;border-radius:10px;cursor:pointer;color:var(--text-light);transition:.2s;display:flex;align-items:center;justify-content:center}
+.close-btn:hover{background:#fee2e2;color:var(--danger)}
+.form-group{margin-bottom:20px;text-align:left}
+.form-group label{display:block;margin-bottom:8px;font-weight:600;font-size:13px;color:var(--text-light)}
+.form-control{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-size:15px;outline:none;transition:all .2s;font-family:inherit}
+.form-control:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(79,70,229,.1);background:var(--card-bg)}
+.toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{padding:14px 20px;border-radius:12px;color:#fff;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);animation:slideInRight .4s cubic-bezier(.16,1,.3,1);display:flex;align-items:center;gap:10px;min-width:280px;pointer-events:auto}
+@keyframes slideInRight{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--danger)}
+.toast.info{background:var(--primary)}
+.toast.warning{background:var(--warning)}
+.actions-cell{display:flex;gap:6px}
+.icon-action{width:34px;height:34px;border-radius:10px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:.2s}
+.icon-action.edit{background:#e0e7ff;color:var(--primary)}
+.icon-action.edit:hover{background:var(--primary);color:#fff}
+.icon-action.del{background:#fee2e2;color:var(--danger)}
+.icon-action.del:hover{background:var(--danger);color:#fff}
+.progress-bar{margin-top:10px;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-bar>div{height:100%;transition:width .5s}
+.empty-state{grid-column:1/-1;text-align:center;padding:40px;color:var(--text-light)}
+.empty-state i{font-size:32px;margin-bottom:10px;opacity:.5}
+.past-item{opacity:.55}
+.info-banner{background:linear-gradient(135deg,#e0e7ff,#c7d2fe);color:var(--primary);padding:12px 16px;border-radius:12px;font-size:13px;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+[data-theme="dark"] .info-banner{background:linear-gradient(135deg,#1e1b4b,#312e81);color:#c7d2fe}
+@media(max-width:768px){
+  .cards-grid{grid-template-columns:1fr 1fr}
+  .charts-grid{grid-template-columns:1fr}
+  .nav{padding:12px 16px}
+  .nav-item{padding:8px 16px;font-size:13px}
+  .auth-box{padding:32px 24px}
+  .fab{bottom:20px;right:20px;width:56px;height:56px;border-radius:18px}
+  .header{padding:12px 16px}
+  .header h1{font-size:16px}
+  .icon-btn{width:36px;height:36px;font-size:14px}
+}
+@media(max-width:400px){.cards-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- LOGIN -->
+<div class="auth-screen active" id="loginScreen">
+  <div class="auth-box">
+    <h1><i class="fas fa-wallet"></i> RK Money Manager</h1>
+    <p class="tagline">PREMIUM • OFFLINE • SECURE</p>
+    <h2 style="font-size:22px;font-weight:700;margin-bottom:5px">Welcome back</h2>
+    <p style="color:var(--text-light);font-size:14px;margin-bottom:10px">Enter your 4-digit PIN</p>
+    <div class="pin-display" id="loginPinDisplay">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div class="numpad">
+      <button onclick="addPin('login','1')">1</button><button onclick="addPin('login','2')">2</button><button onclick="addPin('login','3')">3</button>
+      <button onclick="addPin('login','4')">4</button><button onclick="addPin('login','5')">5</button><button onclick="addPin('login','6')">6</button>
+      <button onclick="addPin('login','7')">7</button><button onclick="addPin('login','8')">8</button><button onclick="addPin('login','9')">9</button>
+      <button class="action" onclick="clearPin('login')"><i class="fas fa-eraser"></i></button><button onclick="addPin('login','0')">0</button><button class="action" onclick="backPin('login')"><i class="fas fa-backspace"></i></button>
+    </div>
+    <button class="btn btn-primary" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i> Login</button>
+    <div class="auth-link">No account? <a onclick="showScreen('registerScreen')">Sign up</a></div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="auth-screen" id="registerScreen">
+  <div class="auth-box">
+    <h1><i class="fas fa-user-plus"></i> RK Money Manager</h1>
+    <p class="tagline">PREMIUM • OFFLINE • SECURE</p>
+    <h2 style="font-size:22px;font-weight:700;margin-bottom:5px">Create Account</h2>
+    <p style="color:var(--text-light);font-size:14px;margin-bottom:20px">Set up your secure account</p>
+    <div class="form-group">
+      <input type="text" class="form-control" id="regName" placeholder="Your full name" style="text-align:center;font-size:16px" maxlength="40">
+    </div>
+    <p style="color:var(--text-light);font-size:13px;margin-bottom:10px">Set 4-digit PIN</p>
+    <div class="pin-display" id="regPinDisplay">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div class="numpad">
+      <button onclick="addPin('reg','1')">1</button><button onclick="addPin('reg','2')">2</button><button onclick="addPin('reg','3')">3</button>
+      <button onclick="addPin('reg','4')">4</button><button onclick="addPin('reg','5')">5</button><button onclick="addPin('reg','6')">6</button>
+      <button onclick="addPin('reg','7')">7</button><button onclick="addPin('reg','8')">8</button><button onclick="addPin('reg','9')">9</button>
+      <button class="action" onclick="clearPin('reg')"><i class="fas fa-eraser"></i></button><button onclick="addPin('reg','0')">0</button><button class="action" onclick="backPin('reg')"><i class="fas fa-backspace"></i></button>
+    </div>
+    <button class="btn btn-primary" onclick="handleRegister()"><i class="fas fa-user-plus"></i> Create Account</button>
+    <div class="auth-link">Already have an account? <a onclick="showScreen('loginScreen')">Login</a></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="app" id="mainApp">
+  <div class="header">
+    <h1><i class="fas fa-wallet"></i> RK Money Manager</h1>
+    <div class="header-actions">
+      <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Theme"><i class="fas fa-moon"></i></button>
+      <button class="icon-btn" onclick="exportData()" title="Backup"><i class="fas fa-file-export"></i></button>
+      <button class="icon-btn" onclick="logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nav-item active" onclick="showSection('dashboard',this)"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+    <button class="nav-item" onclick="showSection('transactions',this)"><i class="fas fa-exchange-alt"></i> Transactions</button>
+    <button class="nav-item" onclick="showSection('accounts',this)"><i class="fas fa-university"></i> Accounts</button>
+    <button class="nav-item" onclick="showSection('budget',this)"><i class="fas fa-bullseye"></i> Budget</button>
+    <button class="nav-item" onclick="showSection('savings',this)"><i class="fas fa-piggy-bank"></i> Savings</button>
+    <button class="nav-item" onclick="showSection('loans',this)"><i class="fas fa-hand-holding-usd"></i> Loans</button>
+    <button class="nav-item" onclick="showSection('investments',this)"><i class="fas fa-chart-line"></i> Investments</button>
+    <button class="nav-item" onclick="showSection('reports',this)"><i class="fas fa-chart-bar"></i> Reports</button>
+    <button class="nav-item" onclick="showSection('recurring',this)"><i class="fas fa-sync-alt"></i> Recurring</button>
+    <button class="nav-item" onclick="showSection('reminders',this)"><i class="fas fa-bell"></i> Reminders</button>
+    <button class="nav-item" onclick="showSection('settings',this)"><i class="fas fa-cog"></i> Settings</button>
+  </div>
+  <div class="container">
+
+    <!-- Dashboard -->
+    <div class="section active" id="dashboard">
+      <div class="cards-grid">
+        <div class="card"><div class="card-label"><i class="fas fa-wallet"></i> Total Balance</div><div class="card-value" id="totalBalance">₹0</div></div>
+        <div class="card"><div class="card-label"><i class="fas fa-arrow-up" style="color:var(--success)"></i> Income (Month)</div><div class="card-value income" id="monthIncome">₹0</div></div>
+        <div class="card"><div class="card-label"><i class="fas fa-arrow-down" style="color:var(--danger)"></i> Expense (Month)</div><div class="card-value expense" id="monthExpense">₹0</div></div>
+        <div class="card"><div class="card-label"><i class="fas fa-piggy-bank"></i> Savings (Month)</div><div class="card-value savings" id="monthSavings">₹0</div></div>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-card"><h3><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Spending by Category</h3><canvas id="categoryChart"></canvas></div>
+        <div class="chart-card"><h3><i class="fas fa-chart-bar" style="color:var(--success)"></i> Income vs Expense</h3><canvas id="incomeExpenseChart"></canvas></div>
+        <div class="chart-card"><h3><i class="fas fa-chart-line" style="color:var(--warning)"></i> Cashflow Trend</h3><canvas id="cashflowChart"></canvas></div>
+        <div class="chart-card"><h3><i class="fas fa-bullseye" style="color:var(--danger)"></i> Budget (This Month)</h3><canvas id="budgetChart"></canvas></div>
+      </div>
+      <div class="card"><h3 style="font-weight:700;margin-bottom:15px"><i class="fas fa-history" style="color:var(--primary)"></i> Recent Transactions</h3><div id="recentTransactions"></div></div>
+    </div>
+
+    <!-- Transactions -->
+    <div class="section" id="transactions">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:24px;font-weight:800"><i class="fas fa-exchange-alt" style="color:var(--primary)"></i> Transactions</h2>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="exportCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+          <button class="btn btn-primary btn-sm" onclick="showTransactionForm()"><i class="fas fa-plus"></i> Add</button>
+        </div>
+      </div>
+      <div class="filters">
+        <input type="text" class="search-input" id="searchTrans" placeholder="🔍 Search..." oninput="setFilter('search',this.value)">
+        <select class="filter-select" id="typeFilter" onchange="setFilter('type',this.value)"><option value="all">All types</option><option value="income">Income</option><option value="expense">Expense</option><option value="transfer">Transfer</option></select>
+        <select class="filter-select" id="categoryFilter" onchange="setFilter('category',this.value)"><option value="all">All categories</option></select>
+        <select class="filter-select" id="accountFilter" onchange="setFilter('account',this.value)"><option value="all">All accounts</option></select>
+      </div>
+      <div class="table-container">
+        <table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Account</th><th>Amount</th><th>Note</th><th>Actions</th></tr></thead><tbody id="transactionsTable"></tbody></table>
+      </div>
+    </div>
+
+    <!-- Accounts -->
+    <div class="section" id="accounts">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:24px;font-weight:800"><i class="fas fa-university" style="color:var(--primary)"></i> Accounts</h2>
+        <button class="btn btn-primary btn-sm" onclick="showAccountForm()"><i class="fas fa-plus"></i> Add Account</button>
+      </div>
+      <div class="cards-grid" id="accountsList"></div>
+    </div>
+
+    <!-- Budget -->
+    <div class="section" id="budget">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:24px;font-weight:800"><i class="fas fa-bullseye" style="color:var(--primary)"></i> Monthly Budgets</h2>
+        <button class="btn btn-primary btn-sm" onclick="showBudgetForm()"><i class="fas fa-plus"></i> Add Budget</button>
+      </div>
+      <div class="cards-grid" id="budgetsList"></div>
+    </div>
+
+    <!-- Savings -->
+    <div class="section" id="savings">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:24px;font-weight:800"><i class="fas fa-piggy-bank" style="color:var(--primary)"></i> Savings Goals</h2>
+        <button class="btn btn-primary btn-sm" onclick="showSavingsForm()"><i class="fas fa-plus"></i> Add Goal</button>
+      </div>
+      <div class="cards-grid" id="savingsList"></div>
+    </div>
+
+    <!-- Loans -->
+    <div class="section" id="loans">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:24px;font-weight:800"><i class="fas fa-hand-holding-usd" style="color:var(--primary)"></i> Loans & EMI</h2>
+        <button class="btn btn-primary btn-sm" onclick="showLoanForm()"><i class="fas fa-plus"></i> Add Loan</button>
+      </div>
+      <div class="cards-grid" id="loansList"></div>
+    </div>
+
+    <!-- Investments -->
+    <div class="section" id="investments">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:24px;font-weight:800"><i class="fas fa-chart-line" style="color:var(--primary)"></i> Investments</h2>
+        <button class="btn btn-primary btn-sm" onclick="showInvestmentForm()"><i class="fas fa-plus"></i> Add Investment</button>
+      </div>
+      <div class="cards-grid" id="investmentsList"></div>
+    </div>
+
+    <!-- Reports -->
+    <div class="section" id="reports">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:24px;font-weight:800"><i class="fas fa-chart-bar" style="color:var(--primary)"></i> Reports</h2>
+        <button class="btn btn-primary btn-sm" onclick="exportPDF()" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 15px rgba(239,68,68,.3)"><i class="fas fa-file-pdf"></i> PDF</button>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-card"><h3><i class="fas fa-chart-line" style="color:var(--primary)"></i> Monthly Trend (12m)</h3><canvas id="monthlyTrendChart"></canvas></div>
+        <div class="chart-card"><h3><i class="fas fa-chart-area" style="color:var(--success)"></i> Cumulative Balance</h3><canvas id="cumulativeChart"></canvas></div>
+      </div>
+      <div class="card"><h3 style="font-weight:700;margin-bottom:15px"><i class="fas fa-clipboard-list" style="color:var(--primary)"></i> Summary</h3><div id="summaryReport"></div></div>
+    </div>
+
+    <!-- Recurring -->
+    <div class="section" id="recurring">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:24px;font-weight:800"><i class="fas fa-sync-alt" style="color:var(--primary)"></i> Recurring</h2>
+        <button class="btn btn-primary btn-sm" onclick="showRecurringForm()"><i class="fas fa-plus"></i> Add</button>
+      </div>
+      <div class="info-banner"><i class="fas fa-info-circle"></i> Recurring transactions auto-post on app open when due.</div>
+      <div class="table-container">
+        <table><thead><tr><th>Name</th><th>Type</th><th>Amount</th><th>Frequency</th><th>Next Date</th><th>Actions</th></tr></thead><tbody id="recurringTable"></tbody></table>
+      </div>
+    </div>
+
+    <!-- Reminders -->
+    <div class="section" id="reminders">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:24px;font-weight:800"><i class="fas fa-bell" style="color:var(--primary)"></i> Reminders</h2>
+        <button class="btn btn-primary btn-sm" onclick="showReminderForm()"><i class="fas fa-plus"></i> Add</button>
+      </div>
+      <div class="table-container">
+        <table><thead><tr><th>Title</th><th>Date</th><th>Amount</th><th>Actions</th></tr></thead><tbody id="remindersTable"></tbody></table>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="section" id="settings">
+      <h2 style="font-size:24px;font-weight:800;margin-bottom:24px"><i class="fas fa-cog" style="color:var(--primary)"></i> Settings</h2>
+      <div class="settings-list">
+        <div class="settings-item" onclick="showChangePIN()"><div><div class="settings-item-label"><i class="fas fa-lock" style="color:var(--primary)"></i> Change PIN</div><div class="settings-item-value">Update your 4-digit PIN</div></div><i class="fas fa-chevron-right" style="color:var(--text-light)"></i></div>
+        <div class="settings-item" onclick="toggleTheme()"><div><div class="settings-item-label"><i class="fas fa-moon" style="color:var(--primary)"></i> Theme</div><div class="settings-item-value" id="themeLabel">Light Mode</div></div><i class="fas fa-chevron-right" style="color:var(--text-light)"></i></div>
+        <div class="settings-item" onclick="showManageCategories()"><div><div class="settings-item-label"><i class="fas fa-tags" style="color:var(--primary)"></i> Categories</div><div class="settings-item-value">Add or remove custom categories</div></div><i class="fas fa-chevron-right" style="color:var(--text-light)"></i></div>
+        <div class="settings-item" onclick="exportData()"><div><div class="settings-item-label"><i class="fas fa-file-export" style="color:var(--success)"></i> Export (JSON)</div><div class="settings-item-value">Backup all data</div></div><i class="fas fa-chevron-right" style="color:var(--text-light)"></i></div>
+        <div class="settings-item" onclick="importData()"><div><div class="settings-item-label"><i class="fas fa-file-import" style="color:var(--warning)"></i> Import Data</div><div class="settings-item-value">Restore from backup</div></div><i class="fas fa-chevron-right" style="color:var(--text-light)"></i></div>
+        <div class="settings-item" onclick="clearAllData()"><div><div class="settings-item-label" style="color:var(--danger)"><i class="fas fa-trash-alt"></i> Clear All Data</div><div class="settings-item-value">Delete everything (cannot undo)</div></div><i class="fas fa-chevron-right" style="color:var(--text-light)"></i></div>
+        <div class="settings-item" onclick="logout()"><div><div class="settings-item-label" style="color:var(--danger)"><i class="fas fa-sign-out-alt"></i> Logout</div><div class="settings-item-value">Sign out of your account</div></div><i class="fas fa-chevron-right" style="color:var(--text-light)"></i></div>
+      </div>
+      <div style="text-align:center;margin-top:30px;color:var(--text-light);font-size:12px">
+        <p>RK Money Manager • Version 3.0</p>
+        <p style="margin-top:4px">Data stored locally in your browser</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<button class="fab" id="fabBtn" onclick="showTransactionForm()"><i class="fas fa-plus"></i></button>
+
+<!-- Change PIN Modal -->
+<div class="modal" id="pinModal">
+  <div class="modal-content">
+    <div class="modal-header"><h2><i class="fas fa-lock" style="color:var(--primary)"></i> Change PIN</h2><button class="close-btn" onclick="closeModal('pinModal')"><i class="fas fa-times"></i></button></div>
+    <p style="text-align:center;color:var(--text-light);margin-bottom:15px;font-size:14px">Enter new 4-digit PIN</p>
+    <div class="pin-display" id="modalPinDisplay"><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div></div>
+    <div class="numpad">
+      <button onclick="addPin('modal','1')">1</button><button onclick="addPin('modal','2')">2</button><button onclick="addPin('modal','3')">3</button>
+      <button onclick="addPin('modal','4')">4</button><button onclick="addPin('modal','5')">5</button><button onclick="addPin('modal','6')">6</button>
+      <button onclick="addPin('modal','7')">7</button><button onclick="addPin('modal','8')">8</button><button onclick="addPin('modal','9')">9</button>
+      <button class="action" onclick="clearPin('modal')"><i class="fas fa-eraser"></i></button><button onclick="addPin('modal','0')">0</button><button class="action" onclick="backPin('modal')"><i class="fas fa-backspace"></i></button>
+    </div>
+    <button class="btn btn-primary" onclick="saveNewPIN()"><i class="fas fa-save"></i> Save PIN</button>
+  </div>
+</div>
+
+<!-- Categories Modal -->
+<div class="modal" id="categoryModal">
+  <div class="modal-content">
+    <div class="modal-header"><h2><i class="fas fa-tags" style="color:var(--primary)"></i> Categories</h2><button class="close-btn" onclick="closeModal('categoryModal')"><i class="fas fa-times"></i></button></div>
+    <div class="form-group" style="display:flex;gap:10px">
+      <input type="text" class="form-control" id="newCatName" placeholder="New category" maxlength="30">
+      <button class="btn btn-primary btn-sm" style="width:auto" onclick="addCustomCategory()"><i class="fas fa-plus"></i></button>
+    </div>
+    <div id="categoryTagList" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script>
+/* ================================================================
+   RK MONEY MANAGER v3.0
+   ================================================================ */
+
+/* ---------- CONSTANTS ---------- */
+const VERSION = '3.0';
+const DEFAULT_CATEGORIES = ["Salary","Food","Transport","Shopping","Bills","Entertainment","Health","Education","Rent","Other"];
+const SALT = 'rkmm_salt_v3_secure';
+const USERS_KEY = 'rkmm_users_v3';
+const THEME_KEY = 'rkmm_theme';
+const SESSION_KEY = 'rkmm_session';
+const SESSION_TTL = 24*60*60*1000; // 24 hours
+
+/* ---------- STATE ---------- */
+let state = {
+  user: null,
+  transactions: [], accounts: [], budgets: [], savings: [], loans: [],
+  investments: [], recurring: [], reminders: [],
+  categories: [...DEFAULT_CATEGORIES],
+  theme: localStorage.getItem(THEME_KEY) || 'light',
+  filters: { search:'', type:'all', category:'all', account:'all' }
+};
+let pins = { login:'', reg:'', modal:'' };
+let charts = {};
+let editingId = { transaction:null, account:null, budget:null, savings:null, loan:null, investment:null, recurring:null, reminder:null };
+
+/* ---------- UTILITIES ---------- */
+function todayISO(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function parseLocalDate(str){
+  if(!str) return new Date();
+  if(str.indexOf('T') !== -1) return new Date(str);
+  return new Date(str + 'T00:00:00');
+}
+function fmt(n){
+  const num = Number(n||0);
+  return '₹' + num.toLocaleString('en-IN',{maximumFractionDigits:2});
+}
+function uid(){ return Date.now() + Math.floor(Math.random()*1e6); }
+function escapeHtml(s){
+  if(s==null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+
+/* ---------- PIN HASH ---------- */
+function hashPin(pin){
+  const str = SALT + '|' + String(pin);
+  let h1 = 5381, h2 = 0;
+  for(let i=0;i<str.length;i++){
+    const c = str.charCodeAt(i);
+    h1 = ((h1<<5)+h1) + c; h1 = h1 & 0x7fffffff;
+    h2 = (c + (h2<<6) + (h2<<16) - h2) & 0x7fffffff;
+  }
+  return 'h'+h1.toString(36)+h2.toString(36);
+}
+
+/* ---------- STORAGE ---------- */
+function userKey(k){ return 'rkmm_' + (state.user?state.user.id:'guest') + '_' + k; }
+function save(k,v){
+  try { localStorage.setItem(userKey(k), JSON.stringify(v)); }
+  catch(e){ showToast('Storage full!','error'); }
+}
+function load(k,d){
+  try { const v = localStorage.getItem(userKey(k)); return v ? JSON.parse(v) : d; }
+  catch(e){ return d; }
+}
+
+/* ---------- TOAST ---------- */
+function showToast(msg, type='info'){
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  const icon = type==='success'?'check-circle':type==='error'?'exclamation-circle':type==='warning'?'exclamation-triangle':'info-circle';
+  t.innerHTML = `<i class="fas fa-${icon}"></i> <span>${escapeHtml(msg)}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(100%)'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+/* ---------- SCREEN NAVIGATION ---------- */
+function showScreen(id){
+  document.querySelectorAll('.auth-screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('mainApp').classList.remove('active');
+  document.getElementById('fabBtn').classList.remove('show');
+  document.getElementById(id).classList.add('active');
+  pins = { login:'', reg:'', modal:'' };
+  updatePinDots('loginPinDisplay',0);
+  updatePinDots('regPinDisplay',0);
+  updatePinDots('modalPinDisplay',0);
+}
+
+function showApp(){
+  document.querySelectorAll('.auth-screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('mainApp').classList.add('active');
+  document.getElementById('fabBtn').classList.add('show');
+  document.getElementById('themeLabel').textContent = state.theme==='dark'?'Dark Mode':'Light Mode';
+  updateThemeIcon();
+  processRecurring();
+  checkReminders();
+  updateDashboard();
+}
+
+function updateThemeIcon(){
+  const icon = document.querySelector('#themeBtn i');
+  if(icon) icon.className = state.theme==='dark' ? 'fas fa-sun' : 'fas fa-moon';
+}
+
+/* ---------- PIN INPUT ---------- */
+function updatePinDots(id,count){
+  document.querySelectorAll('#'+id+' .pin-dot').forEach((d,i)=>d.classList.toggle('filled', i<count));
+}
+function addPin(type, d){
+  if(pins[type].length<4){
+    pins[type] += d;
+    updatePinDots(type+'PinDisplay', pins[type].length);
+  }
+}
+function clearPin(type){ pins[type]=''; updatePinDots(type+'PinDisplay',0); }
+function backPin(type){ pins[type]=pins[type].slice(0,-1); updatePinDots(type+'PinDisplay',pins[type].length); }
+
+/* ---------- REGISTER ---------- */
+function handleRegister(){
+  const name = document.getElementById('regName').value.trim();
+  if(name.length<2){ showToast('Enter valid name (min 2 chars)','error'); return; }
+  if(pins.reg.length!==4){ showToast('Enter 4-digit PIN','error'); return; }
+  const users = JSON.parse(localStorage.getItem(USERS_KEY)||'[]');
+  const pinHash = hashPin(pins.reg);
+  if(users.some(u=>u.pinHash===pinHash)){ showToast('PIN already used','error'); return; }
+  users.push({ id:'u'+uid(), name, pinHash, createdAt:new Date().toISOString() });
+  try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
+  catch(e){ showToast('Storage error','error'); return; }
+  showToast('Account created! Please login','success');
+  document.getElementById('regName').value = '';
+  setTimeout(()=>showScreen('loginScreen'), 800);
+}
+
+/* ---------- LOGIN ---------- */
+function handleLogin(){
+  if(pins.login.length!==4){ showToast('Enter 4-digit PIN','error'); return; }
+  const users = JSON.parse(localStorage.getItem(USERS_KEY)||'[]');
+  if(!users.length){ showToast('No account. Please sign up','error'); return; }
+  const hash = hashPin(pins.login);
+  const found = users.find(u=>u.pinHash===hash);
+  if(!found){ showToast('Invalid PIN','error'); setTimeout(()=>clearPin('login'),600); return; }
+  state.user = { id: found.id, name: found.name };
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ userId: found.id, ts: Date.now() }));
+  loadUserData();
+  showToast('Welcome, ' + found.name + '!','success');
+  showApp();
+}
+
+function loadUserData(){
+  state.transactions = load('transactions',[]);
+  state.accounts     = load('accounts',[]);
+  state.budgets      = load('budgets',[]);
+  state.savings      = load('savings',[]);
+  state.loans        = load('loans',[]);
+  state.investments  = load('investments',[]);
+  state.recurring    = load('recurring',[]);
+  state.reminders    = load('reminders',[]);
+  state.categories   = load('categories',[...DEFAULT_CATEGORIES]);
+}
+
+function logout(){
+  if(!confirm('Logout from your account?')) return;
+  localStorage.removeItem(SESSION_KEY);
+  state.user = null;
+  state.transactions=[]; state.accounts=[]; state.budgets=[]; state.savings=[];
+  state.loans=[]; state.investments=[]; state.recurring=[]; state.reminders=[];
+  state.filters = { search:'', type:'all', category:'all', account:'all' };
+  showScreen('loginScreen');
+  showToast('Logged out','info');
+}
+
+/* ---------- NAVIGATION ---------- */
+function showSection(id, btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  const renders = {
+    dashboard:updateDashboard, transactions:renderTransactions, accounts:renderAccounts,
+    budget:renderBudgets, savings:renderSavings, loans:renderLoans,
+    investments:renderInvestments, reports:renderReports,
+    recurring:renderRecurring, reminders:renderReminders
+  };
+  if(renders[id]) renders[id]();
+}
+
+/* ---------- RECURRING AUTO-PROCESS ---------- */
+function processRecurring(){
+  if(!state.recurring.length) return;
+  const today = parseLocalDate(todayISO());
+  let changed = false, skipped = 0;
+  state.recurring.forEach(r=>{
+    let next = parseLocalDate(r.nextDate);
+    if(isNaN(next)) return;
+    let guard = 0;
+    while(next <= today && guard < 1000){
+      const acc = state.accounts.find(a=>a.name === r.account);
+      if(acc){
+        if(r.type === 'income') acc.balance += r.amount;
+        else acc.balance -= r.amount;
+        state.transactions.push({
+          id: uid(), type: r.type, amount: r.amount,
+          category: r.category || 'Recurring',
+          account: r.account,
+          date: next.getFullYear()+'-'+String(next.getMonth()+1).padStart(2,'0')+'-'+String(next.getDate()).padStart(2,'0'),
+          note: 'Auto: ' + r.name
+        });
+      } else {
+        skipped++;
+      }
+      if(r.frequency==='daily') next.setDate(next.getDate()+1);
+      else if(r.frequency==='weekly') next.setDate(next.getDate()+7);
+      else if(r.frequency==='monthly') next.setMonth(next.getMonth()+1);
+      else if(r.frequency==='yearly') next.setFullYear(next.getFullYear()+1);
+      changed = true; guard++;
+    }
+    r.nextDate = next.getFullYear()+'-'+String(next.getMonth()+1).padStart(2,'0')+'-'+String(next.getDate()).padStart(2,'0');
+  });
+  if(changed){
+    save('transactions', state.transactions);
+    save('accounts', state.accounts);
+    save('recurring', state.recurring);
+    if(skipped) showToast(`Recurring posted (${skipped} skipped - account missing)`,'warning');
+    else showToast('Recurring transactions posted','info');
+  }
+}
+
+/* ---------- REMINDERS CHECK ---------- */
+function checkReminders(){
+  const today = todayISO();
+  const todays = state.reminders.filter(r=>r.date === today);
+  if(todays.length) showToast(`📅 ${todays.length} reminder(s) today`,'info');
+}
+
+/* ---------- DASHBOARD ---------- */
+function updateDashboard(){
+  const now = new Date(), cm = now.getMonth(), cy = now.getFullYear();
+  const monthTx = state.transactions.filter(t=>{
+    const d = parseLocalDate(t.date);
+    return d.getMonth()===cm && d.getFullYear()===cy;
+  });
+  const inc = monthTx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const exp = monthTx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const bal = state.accounts.reduce((s,a)=>s+a.balance,0);
+  document.getElementById('totalBalance').textContent = fmt(bal);
+  document.getElementById('monthIncome').textContent = fmt(inc);
+  document.getElementById('monthExpense').textContent = fmt(exp);
+  document.getElementById('monthSavings').textContent = fmt(inc-exp);
+  updateCharts();
+  renderRecentTransactions();
+}
+
+function updateCharts(){
+  const now = new Date(), cm = now.getMonth(), cy = now.getFullYear();
+  const monthTx = state.transactions.filter(t=>{
+    const d = parseLocalDate(t.date);
+    return d.getMonth()===cm && d.getFullYear()===cy;
+  });
+
+  // Category doughnut
+  const catData = {};
+  monthTx.filter(t=>t.type==='expense').forEach(t=>{ catData[t.category] = (catData[t.category]||0) + t.amount; });
+  const cCtx = document.getElementById('categoryChart');
+  if(cCtx){
+    if(charts.category) charts.category.destroy();
+    const hasData = Object.keys(catData).length > 0;
+    charts.category = new Chart(cCtx, {
+      type: 'doughnut',
+      data: {
+        labels: hasData ? Object.keys(catData) : ['No data'],
+        datasets: [{
+          data: hasData ? Object.values(catData) : [0],
+          backgroundColor: ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4','#84cc16','#f97316','#14b8a6'],
+          borderWidth: 0
+        }]
+      },
+      options: { responsive:true, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, padding:8, font:{size:11} } } } }
+    });
+  }
+
+  // 6-month bars
+  const l6 = [];
+  for(let i=5;i>=0;i--){ const d = new Date(); d.setMonth(d.getMonth()-i); l6.push({ m: d.toLocaleString('default',{month:'short'}), y: d.getFullYear(), mo: d.getMonth() }); }
+  const iD = l6.map(m=>state.transactions.filter(t=>{
+    const d = parseLocalDate(t.date);
+    return t.type==='income' && d.getMonth()===m.mo && d.getFullYear()===m.y;
+  }).reduce((s,t)=>s+t.amount,0));
+  const eD = l6.map(m=>state.transactions.filter(t=>{
+    const d = parseLocalDate(t.date);
+    return t.type==='expense' && d.getMonth()===m.mo && d.getFullYear()===m.y;
+  }).reduce((s,t)=>s+t.amount,0));
+
+  const ieCtx = document.getElementById('incomeExpenseChart');
+  if(ieCtx){
+    if(charts.ie) charts.ie.destroy();
+    charts.ie = new Chart(ieCtx, {
+      type:'bar',
+      data:{ labels:l6.map(m=>m.m), datasets:[
+        { label:'Income', data:iD, backgroundColor:'#10b981', borderRadius:6 },
+        { label:'Expense', data:eD, backgroundColor:'#ef4444', borderRadius:6 }
+      ]},
+      options:{ responsive:true, plugins:{legend:{position:'bottom'}} }
+    });
+  }
+
+  const cfCtx = document.getElementById('cashflowChart');
+  if(cfCtx){
+    if(charts.cf) charts.cf.destroy();
+    charts.cf = new Chart(cfCtx, {
+      type:'line',
+      data:{ labels:l6.map(m=>m.m), datasets:[{ label:'Net', data:iD.map((v,i)=>v-eD[i]), borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,0.1)', fill:true, tension:0.4 }]},
+      options:{ responsive:true, plugins:{legend:{display:false}} }
+    });
+  }
+
+  const bCtx = document.getElementById('budgetChart');
+  if(bCtx){
+    const labels = state.budgets.length ? state.budgets.map(b=>b.category) : ['No budgets'];
+    const data = state.budgets.map(b=>{
+      const spent = monthTx.filter(t=>t.type==='expense' && t.category===b.category).reduce((x,t)=>x+t.amount,0);
+      return b.limit>0 ? (spent/b.limit)*100 : 0;
+    });
+    if(charts.b) charts.b.destroy();
+    charts.b = new Chart(bCtx, {
+      type:'bar',
+      data:{ labels, datasets:[{ label:'% Used', data: data.length ? data : [0],
+        backgroundColor: data.map(v=>v>100?'#ef4444':v>80?'#f59e0b':'#10b981'), borderRadius:6 }]},
+      options:{ responsive:true, indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{ max:120 } } }
+    });
+  }
+}
+
+function renderRecentTransactions(){
+  const rec = state.transactions.slice().sort((a,b)=>parseLocalDate(b.date)-parseLocalDate(a.date)).slice(0,5);
+  const c = document.getElementById('recentTransactions');
+  if(!rec.length){ c.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>No transactions yet</p></div>'; return; }
+  c.innerHTML = rec.map(t=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid var(--border)">
+      <div style="min-width:0;flex:1">
+        <div style="font-weight:600">${escapeHtml(t.category)}</div>
+        <div style="font-size:12px;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.date} • ${escapeHtml(t.type==='transfer' ? t.from_account+' → '+t.to_account : (t.account||'-'))}</div>
+      </div>
+      <div style="color:${t.type==='income'?'var(--success)':t.type==='expense'?'var(--danger)':'var(--primary)'};font-weight:700;font-size:16px;margin-left:12px;white-space:nowrap">${t.type==='income'?'+':t.type==='expense'?'-':''}${fmt(t.amount)}</div>
+    </div>`).join('');
+}
+
+/* ---------- TRANSACTIONS ---------- */
+function showTransactionForm(existing=null){
+  if(!state.accounts.length){ showToast('Add an account first','error'); return; }
+  editingId.transaction = existing ? existing.id : null;
+  const accsOpts = state.accounts.map(a=>`<option value="${escapeHtml(a.name)}">${escapeHtml(a.name)} (${fmt(a.balance)})</option>`).join('');
+  const catsOpts = state.categories.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+
+  const modal = document.createElement('div');
+  modal.className = 'modal active';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-${existing?'edit':'plus-circle'}" style="color:var(--primary)"></i> ${existing?'Edit':'Add'} Transaction</h2>
+        <button class="close-btn" onclick="closeDynamicModal(this)"><i class="fas fa-times"></i></button>
+      </div>
+      <form onsubmit="saveTransaction(event,this)">
+        <div class="form-group"><label>Type</label>
+          <select class="form-control" id="transType" onchange="onTransTypeChange(this.value)">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+            <option value="transfer">Transfer</option>
+          </select></div>
+        <div class="form-group"><label>Amount (₹)</label>
+          <input type="number" class="form-control" id="transAmount" min="0.01" step="0.01" value="${existing?existing.amount:''}" required autofocus></div>
+        <div class="form-group" id="categoryGroup"><label>Category</label>
+          <select class="form-control" id="transCategory">${catsOpts}</select></div>
+        <div class="form-group" id="accountGroup"><label>Account</label>
+          <select class="form-control" id="transAccount">${accsOpts}</select></div>
+        <div class="form-group" id="fromGroup" style="display:none"><label>From Account</label>
+          <select class="form-control" id="transFrom">${accsOpts}</select></div>
+        <div class="form-group" id="toGroup" style="display:none"><label>To Account</label>
+          <select class="form-control" id="transTo">${accsOpts}</select></div>
+        <div class="form-group"><label>Date</label>
+          <input type="date" class="form-control" id="transDate" value="${existing?existing.date:todayISO()}" required></div>
+        <div class="form-group"><label>Note</label>
+          <input type="text" class="form-control" id="transNote" maxlength="100" value="${existing&&existing.note?escapeHtml(existing.note):''}"></div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+
+  if(existing){
+    document.getElementById('transType').value = existing.type;
+    if(existing.type!=='transfer'){
+      document.getElementById('transCategory').value = existing.category;
+      document.getElementById('transAccount').value = existing.account;
+    } else {
+      document.getElementById('transFrom').value = existing.from_account;
+      document.getElementById('transTo').value = existing.to_account;
+    }
+  }
+  onTransTypeChange(existing ? existing.type : 'income');
+}
+
+function onTransTypeChange(type){
+  const isT = type === 'transfer';
+  document.getElementById('categoryGroup').style.display = isT ? 'none' : 'block';
+  document.getElementById('accountGroup').style.display = isT ? 'none' : 'block';
+  document.getElementById('fromGroup').style.display = isT ? 'block' : 'none';
+  document.getElementById('toGroup').style.display = isT ? 'block' : 'none';
+}
+
+function revertBalance(t){
+  if(!t) return;
+  if(t.type==='income'){ const a = state.accounts.find(x=>x.name===t.account); if(a) a.balance -= t.amount; }
+  else if(t.type==='expense'){ const a = state.accounts.find(x=>x.name===t.account); if(a) a.balance += t.amount; }
+  else if(t.type==='transfer'){
+    const f = state.accounts.find(x=>x.name===t.from_account);
+    const to = state.accounts.find(x=>x.name===t.to_account);
+    if(f) f.balance += t.amount;
+    if(to) to.balance -= t.amount;
+  }
+}
+function applyBalance(t){
+  if(t.type==='income'){ const a = state.accounts.find(x=>x.name===t.account); if(a) a.balance += t.amount; }
+  else if(t.type==='expense'){ const a = state.accounts.find(x=>x.name===t.account); if(a) a.balance -= t.amount; }
+  else if(t.type==='transfer'){
+    const f = state.accounts.find(x=>x.name===t.from_account);
+    const to = state.accounts.find(x=>x.name===t.to_account);
+    if(f) f.balance -= t.amount;
+    if(to) to.balance += t.amount;
+  }
+}
+
+function saveTransaction(e, form){
+  e.preventDefault();
+  const type = document.getElementById('transType').value;
+  const amount = parseFloat(document.getElementById('transAmount').value);
+  const date = document.getElementById('transDate').value;
+  const note = document.getElementById('transNote').value.trim();
+
+  if(!amount || amount <= 0){ showToast('Enter valid amount','error'); return; }
+  if(!date){ showToast('Select date','error'); return; }
+
+  const t = {
+    id: editingId.transaction || uid(),
+    type, amount,
+    category: type==='transfer' ? 'Transfer' : document.getElementById('transCategory').value,
+    account: type!=='transfer' ? document.getElementById('transAccount').value : null,
+    from_account: type==='transfer' ? document.getElementById('transFrom').value : null,
+    to_account: type==='transfer' ? document.getElementById('transTo').value : null,
+    date, note
+  };
+
+  // Validations
+  if(type==='transfer'){
+    if(t.from_account === t.to_account){ showToast('From and To must differ','error'); return; }
+    const fromAcc = state.accounts.find(a=>a.name===t.from_account);
+    const toAcc = state.accounts.find(a=>a.name===t.to_account);
+    if(!fromAcc || !toAcc){ showToast('Account not found','error'); return; }
+    let projected = fromAcc.balance;
+    if(editingId.transaction){
+      const old = state.transactions.find(x=>x.id===editingId.transaction);
+      if(old){
+        if(old.type==='transfer' && old.from_account===t.from_account) projected += old.amount;
+        if(old.type==='expense' && old.account===t.from_account) projected += old.amount;
+        if(old.type==='income' && old.account===t.from_account) projected -= old.amount;
+        if(old.type==='transfer' && old.to_account===t.from_account) projected -= old.amount;
+      }
+    }
+    if(projected < amount){ showToast('Insufficient balance in From account','error'); return; }
+  }
+  else if(type==='expense'){
+    const acc = state.accounts.find(a=>a.name===t.account);
+    if(!acc){ showToast('Account not found','error'); return; }
+    let projected = acc.balance;
+    if(editingId.transaction){
+      const old = state.transactions.find(x=>x.id===editingId.transaction);
+      if(old){
+        if(old.type==='expense' && old.account===t.account) projected += old.amount;
+        if(old.type==='income' && old.account===t.account) projected -= old.amount;
+        if(old.type==='transfer' && old.from_account===t.account) projected += old.amount;
+        if(old.type==='transfer' && old.to_account===t.account) projected -= old.amount;
+      }
+    }
+    if(projected < amount){ showToast('Insufficient balance','error'); return; }
+  }
+  else if(type==='income'){
+    const acc = state.accounts.find(a=>a.name===t.account);
+    if(!acc){ showToast('Account not found','error'); return; }
+  }
+
+  if(editingId.transaction){
+    const old = state.transactions.find(x=>x.id===editingId.transaction);
+    revertBalance(old);
+    state.transactions = state.transactions.filter(x=>x.id!==editingId.transaction);
+  }
+  state.transactions.push(t);
+  applyBalance(t);
+
+  save('transactions', state.transactions);
+  save('accounts', state.accounts);
+  editingId.transaction = null;
+  form.closest('.modal').remove();
+  renderTransactions();
+  if(document.getElementById('dashboard').classList.contains('active')) updateDashboard();
+  showToast('Transaction saved','success');
+}
+
+function renderTransactions(){
+  const tb = document.getElementById('transactionsTable');
+  const catSel = document.getElementById('categoryFilter');
+  const accSel = document.getElementById('accountFilter');
+  // Preserve current selection
+  const prevCat = state.filters.category;
+  const prevAcc = state.filters.account;
+  const allCats = [...new Set(state.transactions.map(t=>t.category))].sort();
+  catSel.innerHTML = '<option value="all">All categories</option>' + allCats.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  catSel.value = allCats.includes(prevCat) ? prevCat : 'all';
+  if(catSel.value !== prevCat) state.filters.category = 'all';
+  accSel.innerHTML = '<option value="all">All accounts</option>' + state.accounts.map(a=>`<option value="${escapeHtml(a.name)}">${escapeHtml(a.name)}</option>`).join('');
+  accSel.value = state.accounts.some(a=>a.name===prevAcc) ? prevAcc : 'all';
+  if(accSel.value !== prevAcc) state.filters.account = 'all';
+  document.getElementById('searchTrans').value = state.filters.search;
+  document.getElementById('typeFilter').value = state.filters.type;
+  filterTransactions();
+}
+
+function setFilter(key, value){ state.filters[key] = value; filterTransactions(); }
+
+function filterTransactions(){
+  const q = state.filters.search.toLowerCase();
+  const ft = state.filters.type, fc = state.filters.category, fa = state.filters.account;
+  let f = state.transactions;
+  if(ft !== 'all') f = f.filter(x=>x.type === ft);
+  if(fc !== 'all') f = f.filter(x=>x.category === fc);
+  if(fa !== 'all') f = f.filter(x=>x.account === fa || x.from_account === fa || x.to_account === fa);
+  if(q) f = f.filter(x=>
+    (x.category && x.category.toLowerCase().includes(q)) ||
+    (x.note && x.note.toLowerCase().includes(q)) ||
+    (x.account && x.account.toLowerCase().includes(q)) ||
+    (x.from_account && x.from_account.toLowerCase().includes(q)) ||
+    (x.to_account && x.to_account.toLowerCase().includes(q)) ||
+    String(x.amount).includes(q)
+  );
+
+  const tb = document.getElementById('transactionsTable');
+  if(!f.length){
+    tb.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-receipt"></i><p>No matching transactions</p></div></td></tr>';
+    return;
+  }
+  tb.innerHTML = f.slice().sort((a,b)=>parseLocalDate(b.date)-parseLocalDate(a.date)).map(x=>`
+    <tr>
+      <td>${x.date}</td>
+      <td><span class="badge badge-${x.type}">${x.type}</span></td>
+      <td>${escapeHtml(x.category)}</td>
+      <td>${escapeHtml(x.type==='transfer' ? x.from_account+' → '+x.to_account : (x.account||'-'))}</td>
+      <td style="color:${x.type==='income'?'var(--success)':x.type==='expense'?'var(--danger)':'var(--primary)'};font-weight:700">${x.type==='income'?'+':x.type==='expense'?'-':''}${fmt(x.amount)}</td>
+      <td>${escapeHtml(x.note||'-')}</td>
+      <td><div class="actions-cell">
+        <button class="icon-action edit" onclick="editTransaction(${x.id})"><i class="fas fa-edit"></i></button>
+        <button class="icon-action del" onclick="deleteTransaction(${x.id})"><i class="fas fa-trash"></i></button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function editTransaction(id){ const t = state.transactions.find(x=>x.id===id); if(t) showTransactionForm(t); }
+function deleteTransaction(id){
+  if(!confirm('Delete this transaction?')) return;
+  const t = state.transactions.find(x=>x.id===id);
+  if(t) revertBalance(t);
+  state.transactions = state.transactions.filter(x=>x.id!==id);
+  save('transactions', state.transactions);
+  save('accounts', state.accounts);
+  renderTransactions();
+  if(document.getElementById('dashboard').classList.contains('active')) updateDashboard();
+  showToast('Deleted','info');
+}
+
+/* ---------- ACCOUNTS ---------- */
+function showAccountForm(existing=null){
+  editingId.account = existing ? existing.id : null;
+  const modal = document.createElement('div');
+  modal.className = 'modal active';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header"><h2><i class="fas fa-university" style="color:var(--primary)"></i> ${existing?'Edit':'Add'} Account</h2>
+        <button class="close-btn" onclick="closeDynamicModal(this)"><i class="fas fa-times"></i></button></div>
+      <form onsubmit="saveAccount(event,this)">
+        <div class="form-group"><label>Name</label>
+          <input type="text" class="form-control" id="accName" value="${existing?escapeHtml(existing.name):''}" maxlength="40" required autofocus></div>
+        <div class="form-group"><label>Type</label>
+          <select class="form-control" id="accType">
+            ${['Bank','Cash','Wallet','Credit Card'].map(t=>`<option value="${t}" ${existing&&existing.type===t?'selected':''}>${t}</option>`).join('')}
+          </select></div>
+        <div class="form-group"><label>Balance (₹)</label>
+          <input type="number" class="form-control" id="accBalance" value="${existing?existing.balance:0}" step="0.01" required></div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function saveAccount(e, form){
+  e.preventDefault();
+  const name = document.getElementById('accName').value.trim();
+  const type = document.getElementById('accType').value;
+  const balance = parseFloat(document.getElementById('accBalance').value) || 0;
+  if(!name){ showToast('Enter account name','error'); return; }
+  const dup = state.accounts.find(a=>a.name===name && a.id!==editingId.account);
+  if(dup){ showToast('Account name already exists','error'); return; }
+
+  if(editingId.account){
+    const a = state.accounts.find(x=>x.id===editingId.account);
+    if(a){
+      const oldName = a.name;
+      a.name = name; a.type = type; a.balance = balance;
+      // propagate rename to all references
+      if(oldName !== name){
+        let ch = false;
+        state.transactions.forEach(t=>{
+          if(t.account===oldName){ t.account=name; ch=true; }
+          if(t.from_account===oldName){ t.from_account=name; ch=true; }
+          if(t.to_account===oldName){ t.to_account=name; ch=true; }
+        });
+        state.recurring.forEach(r=>{ if(r.account===oldName){ r.account=name; ch=true; } });
+        if(ch){
+          save('transactions', state.transactions);
+          save('recurring', state.recurring);
+        }
+      }
+    }
+  } else {
+    state.accounts.push({ id: uid(), name, type, balance });
+  }
+  save('accounts', state.accounts);
+  editingId.account = null;
+  form.closest('.modal').remove();
+  renderAccounts();
+  if(document.getElementById('dashboard').classList.contains('active')) updateDashboard();
+  showToast('Account saved','success');
+}
+
+function renderAccounts(){
+  const c = document.getElementById('accountsList');
+  if(!state.accounts.length){
+    c.innerHTML = '<div class="empty-state"><i class="fas fa-university"></i><p>No accounts yet</p></div>';
+    return;
+  }
+  const icons = {Bank:'university', Cash:'money-bill-wave', Wallet:'wallet', 'Credit Card':'credit-card'};
+  c.innerHTML = state.accounts.map(a=>`
+    <div class="card">
+      <div class="card-label"><i class="fas fa-${icons[a.type]||'wallet'}"></i> ${a.type}</div>
+      <div class="card-value" style="font-size:24px">${fmt(a.balance)}</div>
+      <div style="margin-top:10px;font-weight:600">${escapeHtml(a.name)}</div>
+      <div class="actions-cell" style="margin-top:15px">
+        <button class="icon-action edit" onclick="editAccount(${a.id})"><i class="fas fa-edit"></i></button>
+        <button class="icon-action del" onclick="deleteAccount(${a.id})"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>`).join('');
+}
+
+function editAccount(id){ const a = state.accounts.find(x=>x.id===id); if(a) showAccountForm(a); }
+function deleteAccount(id){
+  const a = state.accounts.find(x=>x.id===id);
+  if(!a) return;
+  const txCount = state.transactions.filter(t=>t.account===a.name || t.from_account===a.name || t.to_account===a.name).length;
+  const msg = txCount
+    ? `Account "${a.name}" has ${txCount} transaction(s). Deleting will keep them but the account will be gone. Continue?`
+    : `Delete account "${a.name}"?`;
+  if(!confirm(msg)) return;
+  state.accounts = state.accounts.filter(x=>x.id!==id);
+  save('accounts', state.accounts);
+  renderAccounts();
+  if(document.getElementById('dashboard').classList.contains('active')) updateDashboard();
+  showToast('Deleted','info');
+}
+
+/* ---------- BUDGET ---------- */
+function showBudgetForm(existing=null){
+  editingId.budget = existing ? existing.id : null;
+  const cats = state.categories.map(c=>`<option value="${escapeHtml(c)}" ${existing&&existing.category===c?'selected':''}>${escapeHtml(c)}</option>`).join('');
+  const modal = document.createElement('div'); modal.className = 'modal active';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header"><h2><i class="fas fa-bullseye" style="color:var(--primary)"></i> ${existing?'Edit':'Add'} Budget</h2>
+        <button class="close-btn" onclick="closeDynamicModal(this)"><i class="fas fa-times"></i></button></div>
+      <form onsubmit="saveBudget(event,this)">
+        <div class="form-group"><label>Category</label><select class="form-control" id="budgetCategory">${cats}</select></div>
+        <div class="form-group"><label>Monthly Limit (₹)</label>
+          <input type="number" class="form-control" id="budgetLimit" min="1" step="1" value="${existing?existing.limit:''}" required autofocus></div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function saveBudget(e, form){
+  e.preventDefault();
+  const category = document.getElementById('budgetCategory').value;
+  const limit = parseFloat(document.getElementById('budgetLimit').value);
+  if(limit <= 0){ showToast('Enter valid limit','error'); return; }
+  const dup = state.budgets.find(b=>b.category===category && b.id!==editingId.budget);
+  if(dup){ showToast('Budget exists for this category','error'); return; }
+  if(editingId.budget){
+    const b = state.budgets.find(x=>x.id===editingId.budget);
+    if(b){ b.category = category; b.limit = limit; }
+  } else {
+    state.budgets.push({ id: uid(), category, limit });
+  }
+  save('budgets', state.budgets);
+  editingId.budget = null;
+  form.closest('.modal').remove();
+  renderBudgets();
+  if(document.getElementById('dashboard').classList.contains('active')) updateDashboard();
+  showToast('Budget saved','success');
+}
+function renderBudgets(){
+  const c = document.getElementById('budgetsList');
+  if(!state.budgets.length){
+    c.innerHTML = '<div class="empty-state"><i class="fas fa-bullseye"></i><p>No budgets set</p></div>';
+    return;
+  }
+  const now = new Date(), cm = now.getMonth(), cy = now.getFullYear();
+  c.innerHTML = state.budgets.map(b=>{
+    const spent = state.transactions.filter(t=>{
+      const d = parseLocalDate(t.date);
+      return t.type==='expense' && t.category===b.category && d.getMonth()===cm && d.getFullYear()===cy;
+    }).reduce((s,t)=>s+t.amount,0);
+    const p = b.limit>0 ? (spent/b.limit)*100 : 0;
+    const col = p>100 ? 'var(--danger)' : p>80 ? 'var(--warning)' : 'var(--success)';
+    return `
+      <div class="card">
+        <div class="card-label"><i class="fas fa-tag"></i> ${escapeHtml(b.category)} <small style="margin-left:auto;color:var(--text-light);font-weight:400">This month</small></div>
+        <div class="card-value" style="font-size:22px">${fmt(spent)} / ${fmt(b.limit)}</div>
+        <div class="progress-bar"><div style="width:${Math.min(p,100)}%;background:${col}"></div></div>
+        <div style="margin-top:5px;font-size:12px;color:var(--text-light)">${p.toFixed(1)}% used ${p>100?'⚠️ Over!':''}</div>
+        <div class="actions-cell" style="margin-top:15px">
+          <button class="icon-action edit" onclick="editBudget(${b.id})"><i class="fas fa-edit"></i></button>
+          <button class="icon-action del" onclick="deleteBudget(${b.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+function editBudget(id){ const b = state.budgets.find(x=>x.id===id); if(b) showBudgetForm(b); }
+function deleteBudget(id){
+  if(!confirm('Delete this budget?')) return;
+  state.budgets = state.budgets.filter(b=>b.id!==id);
+  save('budgets', state.budgets);
+  renderBudgets();
+  if(document.getElementById('dashboard').classList.contains('active')) updateDashboard();
+}
+
+/* ---------- SAVINGS ---------- */
+function showSavingsForm(existing=null){
+  editingId.savings = existing ? existing.id : null;
+  const modal = document.createElement('div'); modal.className = 'modal active';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header"><h2><i class="fas fa-piggy-bank" style="color:var(--primary)"></i> ${existing?'Edit':'Add'} Goal</h2>
+        <button class="close-btn" onclick="closeDynamicModal(this)"><i class="fas fa-times"></i></button></div>
+      <form onsubmit="saveSavings(event,this)">
+        <div class="form-group"><label>Goal Name</label>
+          <input type="text" class="form-control" id="savingsName" value="${existing?escapeHtml(existing.name):''}" maxlength="50" required autofocus></div>
+        <div class="form-group"><label>Target (₹)</label>
+          <input type="number" class="form-control" id="savingsTarget" min="1" step="0.01" value="${existing?existing.target:''}" required></div>
+        <div class="form-group"><label>Current (₹)</label>
+          <input type="number" class="form-control" id="savingsCurrent" min="0" step="0.01" value="${existing?existing.current:0}" required></div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function saveSavings(e, form){
+  e.preventDefault();
+  const name = document.getElementById('savingsName').value.trim();
+  const target = parseFloat(document.getElementById('savingsTarget').value);
+  const current = parseFloat(document.getElementById('savingsCurrent').value) || 0;
+  if(target <= 0){ showToast('Target must be positive','error'); return; }
+  if(editingId.savings){
+    const s = state.savings.find(x=>x.id===editingId.savings);
+    if(s){ s.name = name; s.target = target; s.current = current; }
+  } else {
+    state.savings.push({ id: uid(), name, target, current });
+  }
+  save('savings', state.savings);
+  editingId.savings = null;
+  form.closest('.modal').remove();
+  renderSavings();
+  showToast('Goal saved','success');
+}
+function renderSavings(){
+  const c = document.getElementById('savingsList');
+  if(!state.savings.length){
+    c.innerHTML = '<div class="empty-state"><i class="fas fa-piggy-bank"></i><p>No goals yet</p></div>';
+    return;
+  }
+  c.innerHTML = state.savings.map(s=>{
+    const p = s.target>0 ? (s.current/s.target)*100 : 0;
+    return `
+      <div class="card">
+        <div class="card-label"><i class="fas fa-star"></i> ${escapeHtml(s.name)}</div>
+        <div class="card-value" style="font-size:22px">${fmt(s.current)} / ${fmt(s.target)}</div>
+        <div class="progress-bar"><div style="width:${Math.min(p,100)}%;background:var(--success)"></div></div>
+        <div style="margin-top:5px;font-size:12px;color:var(--text-light)">${p.toFixed(1)}% achieved ${p>=100?'🎉 Done!':''}</div>
+        <div class="actions-cell" style="margin-top:15px">
+          <button class="icon-action edit" onclick="editSavings(${s.id})"><i class="fas fa-edit"></i></button>
+          <button class="icon-action del" onclick="deleteSavings(${s.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+function editSavings(id){ const s = state.savings.find(x=>x.id===id); if(s) showSavingsForm(s); }
+function deleteSavings(id){
+  if(!confirm('Delete this goal?')) return;
+  state.savings = state.savings.filter(s=>s.id!==id);
+  save('savings', state.savings);
+  renderSavings();
+}
+
+/* ---------- LOANS ---------- */
+function showLoanForm(existing=null){
+  editingId.loan = existing ? existing.id : null;
+  const modal = document.createElement('div'); modal.className = 'modal active';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header"><h2><i class="fas fa-hand-holding-usd" style="color:var(--primary)"></i> ${existing?'Edit':'Add'} Loan</h2>
+        <button class="close-btn" onclick="closeDynamicModal(this)"><i class="fas fa-times"></i></button></div>
+      <form onsubmit="saveLoan(event,this)">
+        <div class="form-group"><label>Name</label>
+          <input type="text" class="form-control" id="loanName" value="${existing?escapeHtml(existing.name):''}" maxlength="50" required autofocus></div>
+        <div class="form-group"><label>Total (₹)</label>
+          <input type="number" class="form-control" id="loanTotal" min="1" step="0.01" value="${existing?existing.total:''}" required></div>
+        <div class="form-group"><label>Remaining (₹)</label>
+          <input type="number" class="form-control" id="loanRemaining" min="0" step="0.01" value="${existing?existing.remaining:''}" required></div>
+        <div class="form-group"><label>Monthly EMI (₹)</label>
+          <input type="number" class="form-control" id="loanEMI" min="1" step="0.01" value="${existing?existing.emi:''}" required></div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function saveLoan(e, form){
+  e.preventDefault();
+  const name = document.getElementById('loanName').value.trim();
+  const total = parseFloat(document.getElementById('loanTotal').value);
+  const remaining = parseFloat(document.getElementById('loanRemaining').value);
+  const emi = parseFloat(document.getElementById('loanEMI').value);
+  if(remaining > total){ showToast('Remaining cannot exceed total','error'); return; }
+  if(editingId.loan){
+    const l = state.loans.find(x=>x.id===editingId.loan);
+    if(l){ l.name = name; l.total = total; l.remaining = remaining; l.emi = emi; }
+  } else {
+    state.loans.push({ id: uid(), name, total, remaining, emi });
+  }
+  save('loans', state.loans);
+  editingId.loan = null;
+  form.closest('.modal').remove();
+  renderLoans();
+  showToast('Loan saved','success');
+}
+function renderLoans(){
+  const c = document.getElementById('loansList');
+  if(!state.loans.length){
+    c.innerHTML = '<div class="empty-state"><i class="fas fa-hand-holding-usd"></i><p>No loans yet</p></div>';
+    return;
+  }
+  c.innerHTML = state.loans.map(l=>{
+    const p = l.total>0 ? ((l.total-l.remaining)/l.total)*100 : 0;
+    return `
+      <div class="card">
+        <div class="card-label"><i class="fas fa-file-invoice-dollar"></i> ${escapeHtml(l.name)}</div>
+        <div class="card-value" style="font-size:22px;color:var(--danger)">${fmt(l.remaining)}</div>
+        <div style="font-size:13px;color:var(--text-light);margin-top:5px">of ${fmt(l.total)}</div>
+        <div style="margin-top:10px;font-size:14px">EMI: <strong>${fmt(l.emi)}/mo</strong></div>
+        <div class="progress-bar"><div style="width:${p}%;background:var(--primary)"></div></div>
+        <div style="margin-top:5px;font-size:12px;color:var(--text-light)">${p.toFixed(1)}% paid</div>
+        <div class="actions-cell" style="margin-top:15px">
+          <button class="icon-action edit" onclick="editLoan(${l.id})"><i class="fas fa-edit"></i></button>
+          <button class="icon-action del" onclick="deleteLoan(${l.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+function editLoan(id){ const l = state.loans.find(x=>x.id===id); if(l) showLoanForm(l); }
+function deleteLoan(id){
+  if(!confirm('Delete this loan?')) return;
+  state.loans = state.loans.filter(l=>l.id!==id);
+  save('loans', state.loans);
+  renderLoans();
+}
+
+/* ---------- INVESTMENTS ---------- */
+function showInvestmentForm(existing=null){
+  editingId.investment = existing ? existing.id : null;
+  const types = ['Stocks','Mutual Funds','FD','Gold','Real Estate','Crypto','Other'];
+  const modal = document.createElement('div'); modal.className = 'modal active';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header"><h2><i class="fas fa-chart-line" style="color:var(--primary)"></i> ${existing?'Edit':'Add'} Investment</h2>
+        <button class="close-btn" onclick="closeDynamicModal(this)"><i class="fas fa-times"></i></button></div>
+      <form onsubmit="saveInvestment(event,this)">
+        <div class="form-group"><label>Name</label>
+          <input type="text" class="form-control" id="invName" value="${existing?escapeHtml(existing.name):''}" maxlength="60" required autofocus></div>
+        <div class="form-group"><label>Type</label>
+          <select class="form-control" id="invType">
+            ${types.map(t=>`<option value="${t}" ${existing&&existing.type===t?'selected':''}>${t}</option>`).join('')}
+          </select></div>
+        <div class="form-group"><label>Invested (₹)</label>
+          <input type="number" class="form-control" id="invInvested" min="1" step="0.01" value="${existing?existing.invested:''}" required></div>
+        <div class="form-group"><label>Current Value (₹)</label>
+          <input type="number" class="form-control" id="invCurrent" min="0" step="0.01" value="${existing?existing.current:''}" required></div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function saveInvestment(e, form){
+  e.preventDefault();
+  const name = document.getElementById('invName').value.trim();
+  const type = document.getElementById('invType').value;
+  const invested = parseFloat(document.getElementById('invInvested').value);
+  const current = parseFloat(document.getElementById('invCurrent').value);
+  if(invested <= 0){ showToast('Invested must be positive','error'); return; }
+  if(editingId.investment){
+    const i = state.investments.find(x=>x.id===editingId.investment);
+    if(i){ i.name = name; i.type = type; i.invested = invested; i.current = current; }
+  } else {
+    state.investments.push({ id: uid(), name, type, invested, current });
+  }
+  save('investments', state.investments);
+  editingId.investment = null;
+  form.closest('.modal').remove();
+  renderInvestments();
+  showToast('Investment saved','success');
+}
+function renderInvestments(){
+  const c = document.getElementById('investmentsList');
+  if(!state.investments.length){
+    c.innerHTML = '<div class="empty-state"><i class="fas fa-chart-line"></i><p>No investments yet</p></div>';
+    return;
+  }
+  const icons = {Stocks:'chart-line','Mutual Funds':'layer-group',FD:'university',Gold:'coins','Real Estate':'building',Crypto:'bitcoin',Other:'briefcase'};
+  c.innerHTML = state.investments.map(i=>{
+    const g = i.current - i.invested;
+    const gp = i.invested>0 ? (g/i.invested)*100 : 0;
+    const col = g>=0 ? 'var(--success)' : 'var(--danger)';
+    return `
+      <div class="card">
+        <div class="card-label"><i class="fas fa-${icons[i.type]||'briefcase'}"></i> ${i.type}</div>
+        <div class="card-value" style="font-size:22px">${fmt(i.current)}</div>
+        <div style="margin-top:10px;font-weight:600">${escapeHtml(i.name)}</div>
+        <div style="margin-top:5px;font-size:14px;color:${col};font-weight:600">
+          <i class="fas fa-${g>=0?'arrow-up':'arrow-down'}"></i> ${g>=0?'+':''}${fmt(g)} (${gp.toFixed(2)}%)
+        </div>
+        <div class="actions-cell" style="margin-top:15px">
+          <button class="icon-action edit" onclick="editInvestment(${i.id})"><i class="fas fa-edit"></i></button>
+          <button class="icon-action del" onclick="deleteInvestment(${i.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+function editInvestment(id){ const i = state.investments.find(x=>x.id===id); if(i) showInvestmentForm(i); }
+function deleteInvestment(id){
+  if(!confirm('Delete this investment?')) return;
+  state.investments = state.investments.filter(i=>i.id!==id);
+  save('investments', state.investments);
+  renderInvestments();
+}
+
+/* ---------- REPORTS ---------- */
+function renderReports(){
+  const l12 = [];
+  for(let i=11;i>=0;i--){ const d = new Date(); d.setMonth(d.getMonth()-i); l12.push({ m: d.toLocaleString('default',{month:'short'}), y: d.getFullYear(), mo: d.getMonth() }); }
+  const mD = l12.map(m=>state.transactions.filter(t=>{
+    const d = parseLocalDate(t.date);
+    return d.getMonth()===m.mo && d.getFullYear()===m.y;
+  }).reduce((s,t)=>s + (t.type==='income' ? t.amount : t.type==='expense' ? -t.amount : 0), 0));
+
+  const tCtx = document.getElementById('monthlyTrendChart');
+  if(tCtx){
+    if(charts.mt) charts.mt.destroy();
+    charts.mt = new Chart(tCtx, {
+      type:'line',
+      data:{ labels: l12.map(m=>m.m), datasets:[{ label:'Net', data: mD, borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,0.1)', fill:true, tension:0.4 }]},
+      options:{ responsive:true, plugins:{legend:{display:false}} }
+    });
+  }
+
+  // Cumulative
+  let openingBalance = 0;
+  state.accounts.forEach(a=>{
+    let netFromAcc = 0;
+    state.transactions.forEach(t=>{
+      if(t.account===a.name) netFromAcc += (t.type==='income' ? t.amount : t.type==='expense' ? -t.amount : 0);
+      if(t.type==='transfer'){
+        if(t.from_account===a.name) netFromAcc -= t.amount;
+        if(t.to_account===a.name) netFromAcc += t.amount;
+      }
+    });
+    openingBalance += (a.balance - netFromAcc);
+  });
+
+  const sorted = state.transactions.slice().sort((a,b)=>parseLocalDate(a.date)-parseLocalDate(b.date));
+  let cum = openingBalance;
+  const cLabels = ['Start'], cData = [openingBalance];
+  sorted.forEach(t=>{
+    cum += (t.type==='income' ? t.amount : t.type==='expense' ? -t.amount : 0);
+    cLabels.push(t.date);
+    cData.push(cum);
+  });
+
+  const cuCtx = document.getElementById('cumulativeChart');
+  if(cuCtx){
+    if(charts.cum) charts.cum.destroy();
+    charts.cum = new Chart(cuCtx, {
+      type:'line',
+      data:{ labels: cLabels, datasets:[{ label:'Balance', data: cData, borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.1)', fill:true, tension:0.3 }]},
+      options:{ responsive:true, plugins:{legend:{display:false}} }
+    });
+  }
+
+  const ti = state.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const te = state.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  document.getElementById('summaryReport').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px">
+      <div><div style="color:var(--text-light);font-size:13px">Total Income</div><div style="font-size:22px;font-weight:700;color:var(--success)">${fmt(ti)}</div></div>
+      <div><div style="color:var(--text-light);font-size:13px">Total Expense</div><div style="font-size:22px;font-weight:700;color:var(--danger)">${fmt(te)}</div></div>
+      <div><div style="color:var(--text-light);font-size:13px">Net Savings</div><div style="font-size:22px;font-weight:700;color:var(--primary)">${fmt(ti-te)}</div></div>
+      <div><div style="color:var(--text-light);font-size:13px">Transactions</div><div style="font-size:22px;font-weight:700">${state.transactions.length}</div></div>
+      <div><div style="color:var(--text-light);font-size:13px">Accounts</div><div style="font-size:22px;font-weight:700">${state.accounts.length}</div></div>
+      <div><div style="color:var(--text-light);font-size:13px">Investments</div><div style="font-size:22px;font-weight:700">${fmt(state.investments.reduce((s,i)=>s+i.current,0))}</div></div>
+    </div>`;
+}
+
+function exportPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(20); doc.setTextColor(79,70,229);
+  doc.text("RK Money Manager - Report", 14, 20);
+  doc.setFontSize(11); doc.setTextColor(0,0,0);
+  doc.text(`User: ${state.user.name}`, 14, 28);
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 34);
+  const ti = state.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const te = state.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  doc.text(`Income: Rs. ${ti.toLocaleString('en-IN')}`, 14, 44);
+  doc.text(`Expense: Rs. ${te.toLocaleString('en-IN')}`, 14, 50);
+  doc.text(`Savings: Rs. ${(ti-te).toLocaleString('en-IN')}`, 14, 56);
+  doc.autoTable({
+    startY: 64,
+    head: [['Date','Type','Category','Account','Amount','Note']],
+    body: state.transactions.slice().sort((a,b)=>parseLocalDate(b.date)-parseLocalDate(a.date)).map(t=>[
+      t.date, t.type, t.category,
+      t.type==='transfer' ? t.from_account+' -> '+t.to_account : (t.account||'-'),
+      `Rs. ${t.amount.toLocaleString('en-IN')}`,
+      t.note||'-'
+    ]),
+    theme:'grid',
+    headStyles:{fillColor:[79,70,229]}
+  });
+  doc.save(`RKMM_Report_${todayISO()}.pdf`);
+  showToast('PDF exported','success');
+}
+
+function exportCSV(){
+  if(!state.transactions.length){ showToast('No data','error'); return; }
+  const esc = c => `"${String(c==null?'':c).replace(/"/g,'""')}"`;
+  const headers = ['Date','Type','Category','Account','From','To','Amount','Note'];
+  const rows = state.transactions.map(t=>[
+    t.date, t.type, t.category, t.account||'', t.from_account||'', t.to_account||'', t.amount, t.note||''
+  ]);
+  const csv = [headers.map(esc).join(','), ...rows.map(r=>r.map(esc).join(','))].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `rkmm_transactions_${todayISO()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported','success');
+}
+
+/* ---------- RECURRING ---------- */
+function showRecurringForm(existing=null){
+  if(!state.accounts.length){ showToast('Add account first','error'); return; }
+  editingId.recurring = existing ? existing.id : null;
+  const accs = state.accounts.map(a=>`<option value="${escapeHtml(a.name)}" ${existing&&existing.account===a.name?'selected':''}>${escapeHtml(a.name)}</option>`).join('');
+  const cats = state.categories.map(c=>`<option value="${escapeHtml(c)}" ${existing&&existing.category===c?'selected':''}>${escapeHtml(c)}</option>`).join('');
+  const modal = document.createElement('div'); modal.className = 'modal active';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header"><h2><i class="fas fa-sync-alt" style="color:var(--primary)"></i> ${existing?'Edit':'Add'} Recurring</h2>
+        <button class="close-btn" onclick="closeDynamicModal(this)"><i class="fas fa-times"></i></button></div>
+      <form onsubmit="saveRecurring(event,this)">
+        <div class="form-group"><label>Name</label>
+          <input type="text" class="form-control" id="recName" value="${existing?escapeHtml(existing.name):''}" maxlength="50" required autofocus></div>
+        <div class="form-group"><label>Type</label>
+          <select class="form-control" id="recType">
+            <option value="income" ${existing&&existing.type==='income'?'selected':''}>Income</option>
+            <option value="expense" ${existing&&existing.type==='expense'?'selected':''}>Expense</option>
+          </select></div>
+        <div class="form-group"><label>Category</label><select class="form-control" id="recCategory">${cats}</select></div>
+        <div class="form-group"><label>Amount (₹)</label>
+          <input type="number" class="form-control" id="recAmount" min="0.01" step="0.01" value="${existing?existing.amount:''}" required></div>
+        <div class="form-group"><label>Frequency</label>
+          <select class="form-control" id="recFrequency">
+            ${['daily','weekly','monthly','yearly'].map(f=>`<option value="${f}" ${existing&&existing.frequency===f?'selected':''}>${f.charAt(0).toUpperCase()+f.slice(1)}</option>`).join('')}
+          </select></div>
+        <div class="form-group"><label>Next Date</label>
+          <input type="date" class="form-control" id="recDate" value="${existing?existing.nextDate:todayISO()}" required></div>
+        <div class="form-group"><label>Account</label><select class="form-control" id="recAccount">${accs}</select></div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function saveRecurring(e, form){
+  e.preventDefault();
+  const name = document.getElementById('recName').value.trim();
+  const type = document.getElementById('recType').value;
+  const category = document.getElementById('recCategory').value;
+  const amount = parseFloat(document.getElementById('recAmount').value);
+  const frequency = document.getElementById('recFrequency').value;
+  const nextDate = document.getElementById('recDate').value;
+  const account = document.getElementById('recAccount').value;
+  if(amount <= 0){ showToast('Enter valid amount','error'); return; }
+  if(editingId.recurring){
+    const r = state.recurring.find(x=>x.id===editingId.recurring);
+    if(r) Object.assign(r, {name, type, category, amount, frequency, nextDate, account});
+  } else {
+    state.recurring.push({ id: uid(), name, type, category, amount, frequency, nextDate, account });
+  }
+  save('recurring', state.recurring);
+  editingId.recurring = null;
+  form.closest('.modal').remove();
+  renderRecurring();
+  showToast('Recurring saved','success');
+}
+function renderRecurring(){
+  const tb = document.getElementById('recurringTable');
+  if(!state.recurring.length){
+    tb.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-sync-alt"></i><p>No recurring transactions</p></div></td></tr>';
+    return;
+  }
+  tb.innerHTML = state.recurring.map(r=>`
+    <tr>
+      <td><strong>${escapeHtml(r.name)}</strong><br><small style="color:var(--text-light)">${escapeHtml(r.account)}</small></td>
+      <td><span class="badge badge-${r.type}">${r.type}</span></td>
+      <td style="font-weight:600">${fmt(r.amount)}</td>
+      <td>${r.frequency}</td>
+      <td>${r.nextDate}</td>
+      <td><div class="actions-cell">
+        <button class="icon-action edit" onclick="editRecurring(${r.id})"><i class="fas fa-edit"></i></button>
+        <button class="icon-action del" onclick="deleteRecurring(${r.id})"><i class="fas fa-trash"></i></button>
+      </div></td>
+    </tr>`).join('');
+}
+function editRecurring(id){ const r = state.recurring.find(x=>x.id===id); if(r) showRecurringForm(r); }
+function deleteRecurring(id){
+  if(!confirm('Delete this recurring?')) return;
+  state.recurring = state.recurring.filter(r=>r.id!==id);
+  save('recurring', state.recurring);
+  renderRecurring();
+}
+
+/* ---------- REMINDERS ---------- */
+function showReminderForm(existing=null){
+  editingId.reminder = existing ? existing.id : null;
+  const modal = document.createElement('div'); modal.className = 'modal active';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header"><h2><i class="fas fa-bell" style="color:var(--primary)"></i> ${existing?'Edit':'Add'} Reminder</h2>
+        <button class="close-btn" onclick="closeDynamicModal(this)"><i class="fas fa-times"></i></button></div>
+      <form onsubmit="saveReminder(event,this)">
+        <div class="form-group"><label>Title</label>
+          <input type="text" class="form-control" id="remTitle" value="${existing?escapeHtml(existing.title):''}" maxlength="60" required autofocus></div>
+        <div class="form-group"><label>Date</label>
+          <input type="date" class="form-control" id="remDate" value="${existing?existing.date:todayISO()}" required></div>
+        <div class="form-group"><label>Amount (Optional)</label>
+          <input type="number" class="form-control" id="remAmount" min="0" step="0.01" value="${existing&&existing.amount?existing.amount:''}"></div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function saveReminder(e, form){
+  e.preventDefault();
+  const title = document.getElementById('remTitle').value.trim();
+  const date = document.getElementById('remDate').value;
+  const amount = parseFloat(document.getElementById('remAmount').value) || 0;
+  if(editingId.reminder){
+    const r = state.reminders.find(x=>x.id===editingId.reminder);
+    if(r){ r.title = title; r.date = date; r.amount = amount; }
+  } else {
+    state.reminders.push({ id: uid(), title, date, amount });
+  }
+  save('reminders', state.reminders);
+  editingId.reminder = null;
+  form.closest('.modal').remove();
+  renderReminders();
+  showToast('Reminder saved','success');
+}
+function renderReminders(){
+  const tb = document.getElementById('remindersTable');
+  if(!state.reminders.length){
+    tb.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="fas fa-bell"></i><p>No reminders</p></div></td></tr>';
+    return;
+  }
+  const today = todayISO();
+  tb.innerHTML = state.reminders.slice().sort((a,b)=>parseLocalDate(a.date)-parseLocalDate(b.date)).map(r=>{
+    const past = r.date < today;
+    return `
+      <tr class="${past?'past-item':''}">
+        <td><strong>${escapeHtml(r.title)}</strong>${past?' <small style="color:var(--danger)">(past)</small>':''}</td>
+        <td>${r.date}</td>
+        <td>${r.amount?fmt(r.amount):'-'}</td>
+        <td><div class="actions-cell">
+          <button class="icon-action edit" onclick="editReminder(${r.id})"><i class="fas fa-edit"></i></button>
+          <button class="icon-action del" onclick="deleteReminder(${r.id})"><i class="fas fa-trash"></i></button>
+        </div></td>
+      </tr>`;
+  }).join('');
+}
+function editReminder(id){ const r = state.reminders.find(x=>x.id===id); if(r) showReminderForm(r); }
+function deleteReminder(id){
+  if(!confirm('Delete this reminder?')) return;
+  state.reminders = state.reminders.filter(r=>r.id!==id);
+  save('reminders', state.reminders);
+  renderReminders();
+}
+
+/* ---------- SETTINGS ---------- */
+function showChangePIN(){
+  clearPin('modal');
+  document.getElementById('pinModal').classList.add('active');
+}
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+function closeDynamicModal(btn){ btn.closest('.modal').remove(); }
+function saveNewPIN(){
+  if(pins.modal.length !== 4){ showToast('PIN must be 4 digits','error'); return; }
+  const users = JSON.parse(localStorage.getItem(USERS_KEY)||'[]');
+  const newHash = hashPin(pins.modal);
+  if(users.some(u=>u.pinHash===newHash && u.id!==state.user.id)){ showToast('PIN already used','error'); return; }
+  const u = users.find(x=>x.id===state.user.id);
+  if(u){
+    u.pinHash = newHash;
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    closeModal('pinModal');
+    showToast('PIN updated','success');
+  } else {
+    showToast('User not found','error');
+  }
+}
+
+function showManageCategories(){
+  renderCategoryTags();
+  document.getElementById('categoryModal').classList.add('active');
+}
+function renderCategoryTags(){
+  document.getElementById('categoryTagList').innerHTML = state.categories.map((c,i)=>`
+    <div style="background:var(--bg);padding:8px 14px;border-radius:100px;font-size:13px;display:flex;align-items:center;gap:8px;border:1px solid var(--border)">
+      ${escapeHtml(c)}
+      <button onclick="removeCategory(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer"><i class="fas fa-times"></i></button>
+    </div>`).join('');
+}
+function addCustomCategory(){
+  const name = document.getElementById('newCatName').value.trim();
+  if(!name){ showToast('Enter category name','error'); return; }
+  if(state.categories.includes(name)){ showToast('Already exists','error'); return; }
+  state.categories.push(name);
+  save('categories', state.categories);
+  document.getElementById('newCatName').value = '';
+  renderCategoryTags();
+  showToast('Category added','success');
+}
+function removeCategory(i){
+  if(state.categories.length <= 1){ showToast('At least one category required','error'); return; }
+  state.categories.splice(i, 1);
+  save('categories', state.categories);
+  renderCategoryTags();
+}
+
+function toggleTheme(){
+  state.theme = state.theme === 'light' ? 'dark' : 'light';
+  localStorage.setItem(THEME_KEY, state.theme);
+  document.body.setAttribute('data-theme', state.theme);
+  const el = document.getElementById('themeLabel');
+  if(el) el.textContent = state.theme === 'dark' ? 'Dark Mode' : 'Light Mode';
+  updateThemeIcon();
+  showToast(`Switched to ${state.theme} mode`,'info');
+}
+
+function clearAllData(){
+  if(!confirm('Delete ALL data for this user? This cannot be undone.')) return;
+  if(!confirm('Really sure? This will erase everything.')) return;
+  ['transactions','accounts','budgets','savings','loans','investments','recurring','reminders','categories'].forEach(k=>localStorage.removeItem(userKey(k)));
+  state.transactions=[]; state.accounts=[]; state.budgets=[]; state.savings=[];
+  state.loans=[]; state.investments=[]; state.recurring=[]; state.reminders=[];
+  state.categories = [...DEFAULT_CATEGORIES];
+  updateDashboard();
+  showToast('All data cleared','info');
+}
+
+function exportData(){
+  const data = {
+    version: VERSION,
+    user: { name: state.user.name },
+    transactions: state.transactions, accounts: state.accounts, budgets: state.budgets,
+    savings: state.savings, loans: state.loans, investments: state.investments,
+    recurring: state.recurring, reminders: state.reminders, categories: state.categories,
+    exportDate: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rkmm_backup_${todayISO()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup exported','success');
+}
+
+function importData(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const d = JSON.parse(ev.target.result);
+        if(typeof d !== 'object' || d === null) throw new Error('Invalid');
+        if(!confirm('Replace ALL current data with imported data?')) return;
+        const arrays = ['transactions','accounts','budgets','savings','loans','investments','recurring','reminders','categories'];
+        arrays.forEach(k=>{
+          if(Array.isArray(d[k])){
+            state[k] = d[k];
+            save(k, state[k]);
+          }
+        });
+        updateDashboard();
+        showToast('Imported successfully','success');
+      } catch(err){
+        showToast('Invalid backup file','error');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+/* ---------- GLOBAL MODAL BACKDROP ---------- */
+window.onclick = function(e){
+  if(e.target.classList.contains('modal')) e.target.classList.remove('active');
+};
+
+/* ---------- INIT ---------- */
+document.addEventListener('DOMContentLoaded', ()=>{
+  // theme
+  if(state.theme === 'dark') document.body.setAttribute('data-theme','dark');
+  updateThemeIcon();
+  document.getElementById('themeLabel').textContent = state.theme === 'dark' ? 'Dark Mode' : 'Light Mode';
+
+  // session restore
+  try {
+    const sess = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if(sess && (Date.now() - sess.ts) < SESSION_TTL){
+      const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+      const u = users.find(x=>x.id === sess.userId);
+      if(u){
+        state.user = { id: u.id, name: u.name };
+        loadUserData();
+        showApp();
+        return;
+      }
+    }
+  } catch(e){ /* ignore */ }
+  localStorage.removeItem(SESSION_KEY);
+  showScreen('loginScreen');
+});
+</script>
+</body>
+</html>
