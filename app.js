@@ -1,1 +1,1 @@
-alert ("please contact your developer")
+alert ("ERROR")
